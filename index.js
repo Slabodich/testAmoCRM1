@@ -18,30 +18,39 @@ const formatTime = (timeInSeconds) => {
 // Напишите реализацию createTimerAnimator
 // который будет анимировать timerEl
 const createTimerAnimator = () => {
-  let intervalId = 0;
+  let startTime = 0;
+  let animationFrameId = 0;
 
   return (seconds) => {
-    let remainingSeconds = seconds;
+    const animate = (timestamp) => {
+      if (!startTime) {
+        startTime = timestamp;
+      }
 
-    timerEl.textContent = formatTime(remainingSeconds);
-    timerEl.style.color = 'black';
+      const elapsedTime = timestamp - startTime;
+      const remainingSeconds = Math.max(seconds - Math.floor(elapsedTime / 1000), 0);
 
-    clearInterval(intervalId);
-
-    intervalId = setInterval(() => {
-      remainingSeconds -= 1;
       timerEl.textContent = formatTime(remainingSeconds);
 
       if (remainingSeconds <= 10) {
         timerEl.style.color = 'red';
+      } else {
+        timerEl.style.color = 'black';
       }
 
-      if (remainingSeconds <= 0) {
-        clearInterval(intervalId);
+      if (remainingSeconds > 0) {
+        animationFrameId = requestAnimationFrame(animate);
+      } else {
         timerEl.textContent = "Time's up!";
         timerEl.style.color = 'black';
       }
-    }, 1000);
+    };
+
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+    }
+
+    animationFrameId = requestAnimationFrame(animate);
   };
 };
 
